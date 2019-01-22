@@ -1,5 +1,7 @@
 import numpy as np
 from os import listdir as ls
+from os import path
+from os import mkdir
 from skimage import filters #import filters
 from skimage import morphology
 from skimage.measure import label
@@ -557,11 +559,12 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 		#save the ctrl mask	
 		if save_masks:
 
-			if not os.path.exist( 'masks' ) :
-				os.makedir( 'masks' )
-			tiff.imsave( path_in + 'masks' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
-			tiff.imsave( path_in + 'masks' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
-			tiff.imsave( path_in + 'masks' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
+			if not path.exists( path_in + 'masks/' ) :
+				mkdir( path_in + 'masks/' )
+
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
 
 	return output_measurements
 
