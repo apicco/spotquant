@@ -16,27 +16,28 @@ def img_corr( img , radius ):
 	img_corrected  =  np.zeros( shape = img.shape , dtype = img.dtype )#where the image corrected will be stored
 	img_median  =  np.zeros( shape = img.shape , dtype = img.dtype )#where the image median will be stored
 	for i in range( img.shape[0] ):
+	
 		#compute the median of the cell for the frame i
 		img_median[ i , : , : ] = filters.median( img[ i , : , : ] , morphology.disk( radius ) )
-		#compute the image corrected without cytoplasmatic background. All maths are done on signed float dtype and converted in 'unsinged 16 bit' format_CORRECTED
+		
+		#compute the image corrected without cytoplasmatic background. 
+		#All maths are done on signed float dtype and converted in 'unsinged 16 bit' format
 		img_corrected[ i , : , : ] = img_as_uint( 
 			( img_as_float( img[ i , : , : ] ) - img_as_float( img_median[ i , : , : ] ) )
 			)
+
 	return img_corrected  ,  img_median
 
 def load_image( path , radius = 17 ):
+
 	im  =  tiff.imread( path )
+	
 	#images acquired with the CCD are on a 12 bit range and can be rescaled to 16 bit
 	im_rescaled  =  rescale_intensity( im , in_range = ( 0 , 2**12-1 ) , out_range = 'uint16' )
 	img_corrected , img_median = img_corr( im_rescaled , radius )
+
 	return img_corrected , img_median
 
-#--------------------------------------------------
-#	mask patches, used to identify
-#	the good GFP patches to be 
-#	quantified and to track the patches
-#	through the stack.
-#--------------------------------------------------
 def dilation(input,iterations):
 	iter=0
 	while iter < iterations:
@@ -435,7 +436,7 @@ def erosion( image , n ) :
 
 
 def mask(image , threshold_value = None , algorithm = 'yen' ):
-	#make a mask from the image image
+	#make a mask from the image using either Yen or Otsu thresholding
 	
 	if ( threshold_value == None ) & ( algorithm == 'yen' ) :
 		threshold_value = filters.threshold_yen( image )
@@ -455,8 +456,7 @@ def mask(image , threshold_value = None , algorithm = 'yen' ):
 #	Track the patches through the stack
 #--------------------------------------------------
 def measure_spot_intensities( image , patch_mask , ctrl_mask , cell_mask ):
-	#Measure the spot intensities that are present in both a mask of the image and
-	#a mask of a control image (the RFP images for the vacuole proteins).
+	#Measure the spot intensities in image, identified by patch_mask, in the cell ctrl_mask, within or outside cell_mask
 
 	#label the masks of the image to be quantified
 	patch_label=label( patch_mask , connectivity=2 )
@@ -514,24 +514,25 @@ def measure_spot_intensities( image , patch_mask , ctrl_mask , cell_mask ):
 						ctrl_mask[ ctrl_label == i + 1 ] = 0
 						measurements[ i ] = 0
 						break
+
 		if spot_at_the_edge:
 			ctrl_mask[ ctrl_label == i + 1 ] = 0
 			measurements[ i ] = 0
 
 	tiff.imsave( './tmp.tif' , ctrl_mask )
-	return measurements
+	
+	return [ m for m in measurements if m > 0 ]
 
 #--------------------------------------------------
-#	Analyse the images, with 
-#	or without RFP mask
+#	Analyse the images
 #--------------------------------------------------
 
-def analysis(path_in,radius=17,GFP_pattern='GFP-FW',save_masks=True , only_membrane = False ):
+def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_membrane = False ):
 	#define the array in which all the measurements will be stored
 	output_measurements=np.zeros(0)
 	images=ls(path_in)
 	
-	GFP_images=[img for img in images if GFP_pattern in img]
+	GFP_images=[img for img in images if file_pattern in img]
 	
 	for i in range(len(GFP_images)):
 		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
@@ -554,19 +555,22 @@ def analysis(path_in,radius=17,GFP_pattern='GFP-FW',save_masks=True , only_membr
 			))
 		
 		#save the ctrl mask	
-		if save_masks: 
-			tiff.imsave( path_in + GFP_images[i].replace( GFP_pattern , '_CellMask' ) , cell_mask )
-			tiff.imsave( path_in+GFP_images[i].replace( GFP_pattern , '_CtrlMask' ) , ctrl_mask )
-			tiff.imsave( path_in+GFP_images[i].replace( GFP_pattern , '_PatchMask' ) , patch_mask )
+		if save_masks:
+
+			if not os.path.exist( 'masks' ) :
+				os.makedir( 'masks' )
+			tiff.imsave( path_in + 'masks' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
+			tiff.imsave( path_in + 'masks' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
+			tiff.imsave( path_in + 'masks' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
 
 	return output_measurements
 
-def experiment(path,target_name,reference_name = 'Nuf2',GFP_pattern = 'GFP-FW', target_median_radius = 6 , Nuf2_median_radius = 17 , only_membrane = False ):
+def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , only_membrane = False , file_pattern = '.tif' ):
 	
-	reference = analysis( path + '/' + reference_name + '/' , radius = Nuf2_median_radius , GFP_pattern = GFP_pattern , only_membrane  =  False )
+	reference = analysis( path + '/' + reference_name + '/' , radius = reference_median_radius , file_pattern = file_pattern , only_membrane  =  False )
 	np.savetxt(path+'/'+reference_name+'_intensities.txt',reference)
 	
-	target = analysis( path + '/' + target_name + '/' , radius = target_median_radius , GFP_pattern = GFP_pattern , only_membrane  =  only_membrane )
+	target = analysis( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern , only_membrane  =  only_membrane )
 	np.savetxt(path+'/'+target_name+'_intensities.txt',target)
 	
 	return(reference,target)
