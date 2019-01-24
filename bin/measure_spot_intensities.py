@@ -547,7 +547,7 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 	for i in range(len(GFP_images)):
 
 		# Load the image
-		GFP_im , GFP_median , GFP_rescaled = load_image( path_in + GFP_images[i] , radius )
+		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
 		print( path_in + GFP_images[i] )
 	
 		# Compute a mask of the patches. Ctrl_mask is used to
