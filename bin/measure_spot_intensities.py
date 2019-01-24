@@ -33,18 +33,26 @@ def img_corr( img , radius ):
 def load_image( path , radius = 17 ):
 
 	im  =  tiff.imread( path )
-	
-	#images acquired with the CCD are on a 12 bit range and can be rescaled to 16 bit
-	im_rescaled  =  rescale_intensity( im , in_range = ( 0 , 2**12-1 ) , out_range = 'uint16' )
-	img_corrected , img_median = img_corr( im_rescaled , radius )
 
-	return img_corrected , img_median
+	#images acquired with the CCD are on a 12 bit range and were rescaled to 16 bit. <- DEPRECATED:
+	# rescale_intensity as been removed as it induces an error in the pixel value. Pixel values are 
+	# integers but rescaling a 12-bit image into a 16-bit image requires some values to be float, which cannot be. 
+	# Hence, rescaling is a crude approximation that should be avoided when quantifying fluorescence intensities.
+	#im_rescaled  =  rescale_intensity( im , in_range = ( 0 , 2**12-1 ) , out_range = 'uint16' )
 
-def dilation(input,iterations):
+	img_corrected , img_median = img_corr( im , radius ) #subtract the local background
+
+	return img_corrected , img_median 
+
+def dilation( input , iterations ):
+
 	iter=0
-	while iter < iterations:
+
+	while iter < iterations :
+
 		input=morphology.dilation(input, morphology.ball(2)).astype(input.dtype)
-		iter+=1
+		iter+=1 
+
 	return input
 
 def erosion( image , n ) :
@@ -537,19 +545,27 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 	GFP_images=[img for img in images if file_pattern in img]
 	
 	for i in range(len(GFP_images)):
-		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
+
+		# Load the image
+		GFP_im , GFP_median , GFP_rescaled = load_image( path_in + GFP_images[i] , radius )
 		print( path_in + GFP_images[i] )
-		
+	
+		# Compute a mask of the patches. Ctrl_mask is used to
+		# asses if patches are too close to the image boundaries
+		# and exclude them. Its dilation ensures that 
+		# no fluorescence intensity is left behind
 		mask_patches = mask( GFP_im )
 		ctrl_mask =  dilation( mask_patches , iterations = 2 )
-		
+	
+		# In some cases, it is conveniente to measure the fluorescence
+		# intensity of patches that are presente only on the membrante
 		if only_membrane :
 			cell_mask_tmp =  mask( GFP_median , algorithm = 'otsu' )
 			cell_mask = morphology.erosion( cell_mask_tmp , morphology.ball(3) ).astype( cell_mask_tmp.dtype )
 		else :
 			cell_mask = ctrl_mask * 0
 	
-		#compute the mask of the image and save it
+		#compute the mask of the patches 
 		patch_mask= dilation( mask_patches , iterations = 1 )
 		output_measurements=np.concatenate((
 			output_measurements,
@@ -565,6 +581,9 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
 			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
 			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPOriginal.tif' ) , GFP_rescaled)
 
 	return output_measurements
 
