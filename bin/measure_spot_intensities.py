@@ -14,6 +14,7 @@ import skimage.io as io
 #	image correction
 #--------------------------------------------------
 def img_corr( img , radius ):
+
 	#define imgage objects
 	img_corrected  =  np.zeros( shape = img.shape , dtype = img.dtype )#where the image corrected will be stored
 	img_median  =  np.zeros( shape = img.shape , dtype = img.dtype )#where the image median will be stored
@@ -449,14 +450,17 @@ def mask(image , threshold_value = None , algorithm = 'yen' ):
 	#make a mask from the image using either Yen or Otsu thresholding
 	
 	if ( threshold_value == None ) & ( algorithm == 'yen' ) :
+
 		threshold_value = filters.threshold_yen( image )
 		print( 'Yen threshold: ' + str( threshold_value ) )
+
 	elif ( threshold_value == None ) & ( algorithm == 'otsu' ) :
+		
 		threshold_value = filters.threshold_otsu( image )
 		print( 'Otsu threshold: ' + str( threshold_value ) )
 	
 	image_threshold = np.zeros( shape = image.shape , dtype = image.dtype )
-	image_threshold[ image > threshold_value ]=1
+	image_threshold[ image > threshold_value ] = 1
 
 	image_eroded = erosion( image_threshold , 21 )
 	
@@ -465,8 +469,8 @@ def mask(image , threshold_value = None , algorithm = 'yen' ):
 #--------------------------------------------------
 #	Track the patches through the stack
 #--------------------------------------------------
+
 def measure_spot_intensities( image , patch_mask , ctrl_mask , cell_mask ):
-	#Measure the spot intensities in image, identified by patch_mask, in the cell ctrl_mask, within or outside cell_mask
 
 	#label the masks of the image to be quantified
 	patch_label=label( patch_mask , connectivity=2 )
@@ -538,13 +542,15 @@ def measure_spot_intensities( image , patch_mask , ctrl_mask , cell_mask ):
 #--------------------------------------------------
 
 def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_membrane = False ):
+
 	#define the array in which all the measurements will be stored
-	output_measurements=np.zeros(0)
-	images=ls(path_in)
+	output_measurements = np.zeros(0)
+
+	images = ls(path_in)
 	
-	GFP_images=[img for img in images if file_pattern in img]
+	GFP_images = [ img for img in images if file_pattern in img ]
 	
-	for i in range(len(GFP_images)):
+	for i in range( len( GFP_images ) ) :
 
 		# Load the image
 		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
@@ -556,17 +562,19 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 		# no fluorescence intensity is left behind
 		mask_patches = mask( GFP_im )
 		ctrl_mask =  dilation( mask_patches , iterations = 2 )
-	
-		# In some cases, it is conveniente to measure the fluorescence
+
+		# In some cases, it is convenient to measure the fluorescence
 		# intensity of patches that are presente only on the membrante
 		if only_membrane :
+
 			cell_mask_tmp =  mask( GFP_median , algorithm = 'otsu' )
 			cell_mask = morphology.erosion( cell_mask_tmp , morphology.ball(3) ).astype( cell_mask_tmp.dtype )
+
 		else :
 			cell_mask = ctrl_mask * 0
 	
 		#compute the mask of the patches 
-		patch_mask= dilation( mask_patches , iterations = 1 )
+		patch_mask = dilation( mask_patches , iterations = 1 )
 		output_measurements=np.concatenate((
 			output_measurements,
 			measure_spot_intensities(GFP_im , patch_mask , ctrl_mask , cell_mask )
