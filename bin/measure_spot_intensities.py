@@ -519,15 +519,15 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 				# Measure the average intensity of the patch. 
 				measurements = np.append( measurements , np.mean( image[ patch_label == i + 1 ] ) )
 			
-#			else : 
-#
-#				patch_mask[ patch_label == i + 1 ] = 0	
-#
-#		else : 
-#			
-#			patch_mask[ patch_label == i + 1 ] = 0	
-#
-	return measurements , patch_mask , ctrl_mask , spot_mask
+			else : 
+
+				patch_mask[ patch_label == i + 1 ] = 0	
+
+		else : 
+			
+			patch_mask[ patch_label == i + 1 ] = 0	
+
+	return measurements , patch_mask , ctrl_mask
 
 #--------------------------------------------------
 #	Analyse the images
@@ -567,7 +567,7 @@ def analysis(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True
 #	
 #		patch_mask = dilation( mask_patches , iterations = 1 )
 
-		measurement , patch_mask , ctrl_mask , spot_mask = measure_spot_intensities(GFP_im , patch_mask , cell_mask )
+		measurement , patch_mask , ctrl_mask = measure_spot_intensities(GFP_im , patch_mask , cell_mask )
 		output_measurements=np.concatenate((
 			output_measurements, measurement
 			))
@@ -577,7 +577,6 @@ def analysis(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True
 			mkdir( path_in + 'masks/' )
 
 		#tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_SpotMask.tif' ) , spot_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
