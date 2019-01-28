@@ -139,6 +139,6 @@ def experiment( path , target_name , reference_name = 'Nuf2' , target_median_rad
 	target = spotquant( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern )
 	np.savetxt(path + '/' + target_name + '_intensities.txt',target)
 	
-	return(reference,target)
+	return( target , reference)
 	
 
