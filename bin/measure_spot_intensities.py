@@ -452,12 +452,12 @@ def mask(image , threshold_value = None , algorithm = 'yen' ):
 	if ( threshold_value == None ) & ( algorithm == 'yen' ) :
 
 		threshold_value = filters.threshold_yen( image )
-		print( 'Yen threshold: ' + str( threshold_value ) )
+		print( '	Yen threshold: ' + str( threshold_value ) )
 
 	elif ( threshold_value == None ) & ( algorithm == 'otsu' ) :
 		
 		threshold_value = filters.threshold_otsu( image )
-		print( 'Otsu threshold: ' + str( threshold_value ) )
+		print( '	Otsu threshold: ' + str( threshold_value ) )
 	
 	image_threshold = np.zeros( shape = image.shape , dtype = image.dtype )
 	image_threshold[ image > threshold_value ] = 1
@@ -495,8 +495,6 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 			] )
 	
 
-		print( is_spot_at_the_edge )
-
 		if not is_spot_at_the_edge :
 
 			# We want to exlude patches that are too close one to the other. Two patches are 
@@ -516,7 +514,6 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 			ctrl_label_id = ctrl_label[ patch_label == i + 1 ][ 0 ] #store the label ID of the ctrl_mask that corresponds to the spot patch_label == i + 1
 			is_the_patch_isolated = len( ctrl_mask[ ctrl_label == ctrl_label_id ] ) == len( spot_mask[ spot_mask == 1 ] )
 
-			print( is_the_patch_isolated )
 			if is_the_patch_isolated :
 
 				# Measure the average intensity of the patch. 
@@ -545,11 +542,13 @@ def analysis(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True
 	
 	GFP_images = [ img for img in images if file_pattern in img ]
 	
+	print( "Path: " + path_in )
+
 	for i in range( len( GFP_images ) ) :
 
 		# Load the image
 		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
-		print( path_in + GFP_images[i] )
+		print( "Image: " + GFP_images[i] )
 	
 		# Compute a mask of the patches and of the cell.. 
 		patch_mask = mask( GFP_im )
@@ -592,7 +591,7 @@ def experiment( path , target_name , reference_name = 'Nuf2' , target_median_rad
 	np.savetxt(path+'/'+reference_name+'_intensities.txt',reference)
 	
 	target = analysis( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern , only_membrane  =  only_membrane )
-	np.savetxt(path+'/'+target_name+'_intensities.txt',target)
+	np.savetxt(path + '/' + target_name + '_intensities.txt',target)
 	
 	return(reference,target)
 	
