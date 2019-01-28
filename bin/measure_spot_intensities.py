@@ -470,72 +470,74 @@ def mask(image , threshold_value = None , algorithm = 'yen' ):
 #	Track the patches through the stack
 #--------------------------------------------------
 
-def measure_spot_intensities( image , patch_mask , ctrl_mask , cell_mask ):
+def measure_spot_intensities( image , patch_mask , cell_mask ):
 
-	#label the masks of the image to be quantified
-	patch_label=label( patch_mask , connectivity=2 )
-	ctrl_label=label( ctrl_mask , connectivity=2 )
+	#label the spot masks of the image
+	patch_label = label( patch_mask , connectivity=2 )
+	# ctrl_mask is used to asses if patches are 
+	# too close to the image boundaries and 
+	# exclude them. Its dilation of patch_mask by 1 ensures that 
+	# no fluorescence intensity is left behind
+	ctrl_mask =  dilation( patch_mask, iterations = 1 )
+	ctrl_label =  label( ctrl_mask )
 
-	measurements = np.zeros( ctrl_label.max() )
-	for i in range( ctrl_label.max() ):
-		spot_at_the_edge = False #I need to define spot_at_the_edge here, because if match_boundary.size < 0 and spot_at_the_edge_of_movie = False, then the definition of spot_at_the_edge is missed
-		for j in range( patch_label.max() ):
-			spot_at_the_edge_of_movie = np.any([np.any(ctrl_label[0,:,:]==j+1),np.any(patch_label[patch_label.shape[0]-1,:,:]==j+1)]) #is the ctrl_mask in a frame at the beginnig or at the end of the movie?
-			match_boundary = ctrl_label[ np.all( [ ctrl_label == i + 1 , cell_mask == 0 ] , axis = 0 ) ]
-			if not ( match_boundary.size > 0 & spot_at_the_edge_of_movie ): #if the ctrl mask is not at the edge of the movie (spots can be at the bottom of the image) and the spot does not sit in the proximity of the cell edge, then blank the corresponding ctrl_mask so that the spot is not selected.
-				ctrl_mask[ ctrl_label == i + 1 ] = 0
-				measurements[ i ] = 0
-			else :
-				match = patch_label[ np.all( [ ctrl_label == i+1 , patch_label == j+1 ] , axis = 0 ) ]
-				if match.size:
-					#before proceeding with the quantification check that the 
-					#spot to be quantified is not truncated at the beginning or 
-					#at the end of the stack i.e.: that the label of the spot 
-					#mask is not present either in any of the array entries of 
-					#the first frame (0) or in any of those of the last frame 
-					#(patch_label.size[0]-1). The presence of a spot at the edge
-					#is recorded as a variable, but the spot is not excluded yet
-					#to allow the algorith to recongize whether there are multiple
-					#spots within the patch of the ctrl_mask. If the spot selection
-					#would be done at this point one could not exculde that an other
-					#GFP patch, which colocalize within the same patch of the 
-					#ctrl_mask (hence too close), would not start or end on the
-					#edges of the stack.
-					spot_at_the_edge=np.any([np.any(patch_label[0,:,:]==j+1),np.any(patch_label[patch_label.shape[0]-1,:,:]==j+1)])
-					#control it is not on the border of the frame
-					if not spot_at_the_edge: 
-						spot_at_the_edge=np.any([np.any(patch_label[:,0,:]==j+1),np.any(patch_label[:,patch_label.shape[1]-1,:]==j+1)])
-					if not spot_at_the_edge: 
-						spot_at_the_edge=np.any([np.any(patch_label[:,:,0]==j+1),np.any(patch_label[:,:,patch_label.shape[2]-1]==j+1)])
+	measurements = np.zeros(0)
+
+	for i in range( patch_label.max() ):
+
+		is_spot_at_the_edge = np.any( [
+			np.any( patch_label[ 0 , : , : ] == j + 1 ) , #is the patch at the beginning of the stack
+			np.any( patch_label[ : , 0 , : ] == j + 1 ) , #is the patch at one side of the stack
+			np.any( patch_label[ : , : , 0 ] == j + 1 ) , #is the patch at one side of the stack
+			np.any( patch_label[ patch_label.shape[ 0 ] - 1 , : , : ] == j + 1 ) , #is the patch at the end of the stack
+			np.any( patch_label[ : , patch_label.shape[ 1 ] - 1 , : ] == j + 1 ) , #is the patch at the other side of the stack
+			np.any( patch_label[ : , : , patch_label.shape[ 2 ] - 1 ] == j + 1 ) #is the patch at the other side of the stack
+			] )
 	
-					#I want to avoid patches that are too close. Those patches
-					#will have the same control_label, which is a dilated version of
-					#patch_labels. If close patches
-					#exist then the value measurements[i] would be assigned more 
-					#than once. If this happens, at the second assignment the 
-					#value of the measurement will be non-zero. Therefore the 
-					#measurement[i] will be deleted (assigned 0) and the loop
-					#over range(patch_labels.max()) will exit to proceed with the
-					#next patch in the ctrl_mask.
-					if not measurements[i]:
-						frame_measurements=np.zeros( patch_label.shape[0] )
-						for frame in range( patch_label.shape[0] ) :
-							frame_measurements[ frame ] = image[ frame , : , : ][ patch_label[ frame , : , : ]  == j + 1 ].sum()
-	
-						#NB: frame_measurements.sum()  is equal to image[patch_label==j+1].sum()
-						measurements[i]=frame_measurements.max()
-					else:
-						ctrl_mask[ ctrl_label == i + 1 ] = 0
-						measurements[ i ] = 0
-						break
 
-		if spot_at_the_edge:
-			ctrl_mask[ ctrl_label == i + 1 ] = 0
-			measurements[ i ] = 0
+		if not is_spot_at_the_edge :
 
-	tiff.imsave( './tmp.tif' , ctrl_mask )
+			# We want to exlude patches that are too close one to the other. Two patches are 
+			# too close if their masks are 2 or less pixels one apart from the other. When the
+			# mask of those patches is dilate by 1 iteration to create ctrl_mask, they regoins
+			# will touch and they will be labelled as one regin in ctrl_label. To select whether
+			# on patch has neighbor that are too close, we compute the mask of that patch alone
+			# (called spot_mask) and we dilate. If the size of the dileted region that masks the
+			# patch is equal to the size of its mask in ctrl_mask, then there are no neighbor
+			# patches. A neighbor patch would infact increase the size of the mask in ctrl_mask.
+			# As the masks are all 1. The sizes of the individual patch masks are computed with
+			# sums.
+			spot_mask  =  np.zeros( shape = patch_mask.shape , dtype = patch_mask.dtype )
+			spot_mask[ patch_label == i + 1 ] = 1 
+			spot_mask == dilation( spot_mask , iterations = 1 )
+
+			ctrl_label_id = ctrl_label[ patch_label == i + 1 ][ 0 ] #store the label ID of the ctrl_mask that corresponds to the spot patch_label == i + 1
+			is_the_patch_isolated = ctrl_mask[ ctrl_label == ctrl_label_id ].sum() == spot_mask.sum()
+
+			if is_the_patch_isolated :
+
+				# Measure the average intensity of the patch. 
+				measurements = np.concatenate( measurements , image[ patch_label == i + 1 ].sum() / sum( patch_label == i + 1 ) )
+			
+			else : 
+
+				patch_mask[ patch_label == i + 1 ] = 0	
+
+		else : 
+			
+			patch_mask[ patch_label == i + 1 ] = 0	
 	
-	return [ m for m in measurements if m > 0 ]
+		#save the ctrl mask	
+		if not path.exists( path_in + 'masks/' ) :
+			mkdir( path_in + 'masks/' )
+
+		#tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
+
+	return measurements 
 
 #--------------------------------------------------
 #	Analyse the images
@@ -556,43 +558,27 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
 		print( path_in + GFP_images[i] )
 	
-		# Compute a mask of the patches. Ctrl_mask is used to
-		# asses if patches are too close to the image boundaries
-		# and exclude them. Its dilation ensures that 
-		# no fluorescence intensity is left behind
-		mask_patches = mask( GFP_im )
-		ctrl_mask =  dilation( mask_patches , iterations = 2 )
+		# Compute a mask of the patches and of the cell.. C		patch_mask = mask( GFP_im )
 
-		# In some cases, it is convenient to measure the fluorescence
-		# intensity of patches that are presente only on the membrante
-		if only_membrane :
+		cell_mask =  mask( GFP_median , algorithm = 'otsu' )
 
-			cell_mask_tmp =  mask( GFP_median , algorithm = 'otsu' )
-			cell_mask = morphology.erosion( cell_mask_tmp , morphology.ball(3) ).astype( cell_mask_tmp.dtype )
+#		# In some cases, it is convenient to measure the fluorescence
+#		# intensity of patches that are presente only on the membrante
+#		if only_membrane :
+#
+#			cell_mask_tmp =  mask( GFP_median , algorithm = 'otsu' )
+#			cell_mask = morphology.erosion( cell_mask_tmp , morphology.ball(3) ).astype( cell_mask_tmp.dtype )
+#
+#		else :
+#			cell_mask = ctrl_mask * 0
+#	
+#		patch_mask = dilation( mask_patches , iterations = 1 )
 
-		else :
-			cell_mask = ctrl_mask * 0
-	
-		#compute the mask of the patches 
-		patch_mask = dilation( mask_patches , iterations = 1 )
 		output_measurements=np.concatenate((
 			output_measurements,
-			measure_spot_intensities(GFP_im , patch_mask , ctrl_mask , cell_mask )
+			measure_spot_intensities(GFP_im , patch_mask , cell_mask )
 			))
-		
-		#save the ctrl mask	
-		if save_masks:
-
-			if not path.exists( path_in + 'masks/' ) :
-				mkdir( path_in + 'masks/' )
-
-			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
-			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
-			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
-			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
-			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
-
-	return output_measurements
+		return output_measurements
 
 def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , only_membrane = False , file_pattern = '.tif' ):
 	
