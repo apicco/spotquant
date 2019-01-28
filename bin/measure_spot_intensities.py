@@ -486,12 +486,12 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 	for i in range( patch_label.max() ):
 
 		is_spot_at_the_edge = np.any( [
-			np.any( patch_label[ 0 , : , : ] == j + 1 ) , #is the patch at the beginning of the stack
-			np.any( patch_label[ : , 0 , : ] == j + 1 ) , #is the patch at one side of the stack
-			np.any( patch_label[ : , : , 0 ] == j + 1 ) , #is the patch at one side of the stack
-			np.any( patch_label[ patch_label.shape[ 0 ] - 1 , : , : ] == j + 1 ) , #is the patch at the end of the stack
-			np.any( patch_label[ : , patch_label.shape[ 1 ] - 1 , : ] == j + 1 ) , #is the patch at the other side of the stack
-			np.any( patch_label[ : , : , patch_label.shape[ 2 ] - 1 ] == j + 1 ) #is the patch at the other side of the stack
+			np.any( patch_label[ 0 , : , : ] == i + 1 ) , #is the patch at the beginning of the stack
+			np.any( patch_label[ : , 0 , : ] == i + 1 ) , #is the patch at one side of the stack
+			np.any( patch_label[ : , : , 0 ] == i + 1 ) , #is the patch at one side of the stack
+			np.any( patch_label[ patch_label.shape[ 0 ] - 1 , : , : ] == i + 1 ) , #is the patch at the end of the stack
+			np.any( patch_label[ : , patch_label.shape[ 1 ] - 1 , : ] == i + 1 ) , #is the patch at the other side of the stack
+			np.any( patch_label[ : , : , patch_label.shape[ 2 ] - 1 ] == i + 1 ) #is the patch at the other side of the stack
 			] )
 	
 
@@ -526,18 +526,8 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 		else : 
 			
 			patch_mask[ patch_label == i + 1 ] = 0	
-	
-		#save the ctrl mask	
-		if not path.exists( path_in + 'masks/' ) :
-			mkdir( path_in + 'masks/' )
 
-		#tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
-
-	return measurements 
+	return measurements , patch_mask , ctrl_mask
 
 #--------------------------------------------------
 #	Analyse the images
@@ -558,7 +548,8 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
 		print( path_in + GFP_images[i] )
 	
-		# Compute a mask of the patches and of the cell.. C		patch_mask = mask( GFP_im )
+		# Compute a mask of the patches and of the cell.. 
+		patch_mask = mask( GFP_im )
 
 		cell_mask =  mask( GFP_median , algorithm = 'otsu' )
 
@@ -574,10 +565,22 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 #	
 #		patch_mask = dilation( mask_patches , iterations = 1 )
 
+		measurement , patch_mask , ctrl_mask = measure_spot_intensities(GFP_im , patch_mask , cell_mask )
 		output_measurements=np.concatenate((
-			output_measurements,
-			measure_spot_intensities(GFP_im , patch_mask , cell_mask )
+			output_measurements, measurement
 			))
+	
+		#save the ctrl mask	
+		if not path.exists( path_in + 'masks/' ) :
+			mkdir( path_in + 'masks/' )
+
+		#tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
+
+
 		return output_measurements
 
 def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , only_membrane = False , file_pattern = '.tif' ):
