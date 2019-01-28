@@ -481,7 +481,7 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 	ctrl_mask =  dilation( patch_mask, iterations = 1 )
 	ctrl_label =  label( ctrl_mask )
 
-	measurements = np.zeros(0)
+	measurements = np.array( [] , dtype = np.float64 )
 
 	for i in range( patch_label.max() ):
 
@@ -494,6 +494,8 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 			np.any( patch_label[ : , : , patch_label.shape[ 2 ] - 1 ] == i + 1 ) #is the patch at the other side of the stack
 			] )
 	
+
+		print( is_spot_at_the_edge )
 
 		if not is_spot_at_the_edge :
 
@@ -509,31 +511,32 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 			# sums.
 			spot_mask  =  np.zeros( shape = patch_mask.shape , dtype = patch_mask.dtype )
 			spot_mask[ patch_label == i + 1 ] = 1 
-			spot_mask == dilation( spot_mask , iterations = 1 )
+			spot_mask = dilation( spot_mask , iterations = 1 )
 
 			ctrl_label_id = ctrl_label[ patch_label == i + 1 ][ 0 ] #store the label ID of the ctrl_mask that corresponds to the spot patch_label == i + 1
-			is_the_patch_isolated = ctrl_mask[ ctrl_label == ctrl_label_id ].sum() == spot_mask.sum()
+			is_the_patch_isolated = len( ctrl_mask[ ctrl_label == ctrl_label_id ] ) == len( spot_mask[ spot_mask == 1 ] )
 
+			print( is_the_patch_isolated )
 			if is_the_patch_isolated :
 
 				# Measure the average intensity of the patch. 
-				measurements = np.concatenate( measurements , image[ patch_label == i + 1 ].sum() / sum( patch_label == i + 1 ) )
+				measurements = np.append( measurements , np.mean( image[ patch_label == i + 1 ] ) )
 			
-			else : 
-
-				patch_mask[ patch_label == i + 1 ] = 0	
-
-		else : 
-			
-			patch_mask[ patch_label == i + 1 ] = 0	
-
-	return measurements , patch_mask , ctrl_mask
+#			else : 
+#
+#				patch_mask[ patch_label == i + 1 ] = 0	
+#
+#		else : 
+#			
+#			patch_mask[ patch_label == i + 1 ] = 0	
+#
+	return measurements , patch_mask , ctrl_mask , spot_mask
 
 #--------------------------------------------------
 #	Analyse the images
 #--------------------------------------------------
 
-def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_membrane = False ):
+def analysis(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True , only_membrane = False ):
 
 	#define the array in which all the measurements will be stored
 	output_measurements = np.zeros(0)
@@ -565,7 +568,7 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 #	
 #		patch_mask = dilation( mask_patches , iterations = 1 )
 
-		measurement , patch_mask , ctrl_mask = measure_spot_intensities(GFP_im , patch_mask , cell_mask )
+		measurement , patch_mask , ctrl_mask , spot_mask = measure_spot_intensities(GFP_im , patch_mask , cell_mask )
 		output_measurements=np.concatenate((
 			output_measurements, measurement
 			))
@@ -575,13 +578,13 @@ def analysis(path_in,radius=17,file_pattern='GFP-FW',save_masks=True , only_memb
 			mkdir( path_in + 'masks/' )
 
 		#tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CellMask.tif' ) , cell_mask )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_SpotMask.tif' ) , spot_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
 
-
-		return output_measurements
+	return output_measurements
 
 def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , only_membrane = False , file_pattern = '.tif' ):
 	
