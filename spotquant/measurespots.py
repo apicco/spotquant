@@ -91,7 +91,7 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 #	Analyse the images
 #--------------------------------------------------
 
-def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True , only_membrane = False ):
+def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True ):
 
 	header()
 
@@ -131,12 +131,12 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 
 	return output_measurements
 
-def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , only_membrane = False , file_pattern = '.tif' ):
+def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , file_pattern = '.tif' ):
 	
-	reference = spotquant( path + '/' + reference_name + '/' , radius = reference_median_radius , file_pattern = file_pattern , only_membrane  =  False )
+	reference = spotquant( path + '/' + reference_name + '/' , radius = reference_median_radius , file_pattern = file_pattern )
 	np.savetxt(path+'/'+reference_name+'_intensities.txt',reference)
 	
-	target = spotquant( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern , only_membrane  =  only_membrane )
+	target = spotquant( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern )
 	np.savetxt(path + '/' + target_name + '_intensities.txt',target)
 	
 	return(reference,target)
