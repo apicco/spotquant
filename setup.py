@@ -1,8 +1,8 @@
 from distutils.core import setup
-from bin.spotquant import header
+from spotquant.measurespots import header
 
 setup( name = 'spot quantification' ,
-		version = header( printit = False ) ,
+		version = str( header( printit = False ) ),
 		description = 'Utilities to quantify spot intensities in images' ,
 		author = 'Andrea Picco',
 		author_email = 'andrea.picco@unige.ch',
