@@ -75,7 +75,7 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 			if is_the_patch_isolated :
 
 				# Measure the average intensity of the patch. 
-				measurements = np.append( measurements , np.mean( image[ patch_label == i + 1 ] ) )
+				measurements = np.append( measurements , np.sum( image[ patch_label == i + 1 ] ) )
 			
 			else : 
 
