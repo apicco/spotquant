@@ -9,14 +9,14 @@ Open the downloaded folder in a terminal and type
 
 	sudo python setup.py install
 
-python can be replaced by your Python 3.X installation of choice. 
+The command `python` can be replaced by your Python 3.X installation of choice ( i.e. `python3.5`, `python3.7`, etc. etc.). 
 
 # Use
 
 It is sufficient to write a .py script with the following two lines
 
 	import spotquant.measurespots as sq 
-	sq.experiment( path  =  'a string containing the path to the experiment folder' , target_name = 'Mdm34' , reference_name = 'Cse4' , target_median_radius  =  6 , reference_median_radius  =  17 )
+	sq.experiment( path  =  'a string containing the path to the experiment folder' , target_name = 'Foo1' , reference_name = 'Foo2' , target_median_radius  =  11 , reference_median_radius  =  17 )
 
 The experiment folder must contain two subfolders. 
 One of these subfolders contains the images of cells expressing the target protein tagged with your fluorophore of choice, the other subfolder contains the images of cells expressing the reference protein tagged with the same fluorophore as the target proteins. 
