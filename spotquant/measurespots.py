@@ -126,8 +126,8 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
 		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPMedian.tif' ) , GFP_median )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_GFPBkgCorrected.tif' ) , GFP_im )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_Median.tif' ) , GFP_median )
+		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_BkgCorrected.tif' ) , GFP_im )
 
 	return output_measurements
 
