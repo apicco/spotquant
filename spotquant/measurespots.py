@@ -28,7 +28,7 @@ def header( version = 1.02 , year = 2019 , printit = True ) :
 #	Track the patches through the stack
 #--------------------------------------------------
 
-def measure_spot_intensities( image , patch_mask , cell_mask ):
+def measure_spot_intensities( image , patch_mask , cell_mask , measure_max_intensity_frame = True ):
 
 	#label the spot masks of the image
 	patch_label = label( patch_mask , connectivity=2 )
@@ -51,7 +51,6 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 			np.any( patch_label[ : , patch_label.shape[ 1 ] - 1 , : ] == i + 1 ) , #is the patch at the other side of the stack
 			np.any( patch_label[ : , : , patch_label.shape[ 2 ] - 1 ] == i + 1 ) #is the patch at the other side of the stack
 			] )
-	
 
 		if not is_spot_at_the_edge :
 
@@ -74,16 +73,42 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 
 			if is_the_patch_isolated :
 
-				frame_measurements = np.zeros( patch_label.shape[ 0 ] )
-
-				for frame in range( patch_label.shape[ 0 ] ) :
-
-					frame_measurements[ frame ] = np.mean( image[ frame , : , : ][ patch_label[ frame , : , : ] == i + 1 ] )
-				
-				# Measure the average intensity of the patch in the brightest of its frames. 
-				measurements = np.append( measurements , frame_measurements.max() )
-				#measurements = np.append( measurements , np.sum( image[ patch_label == i + 1 ] ) )
+				if measure_max_intensity_frame :
 			
+					spot_mask = dilation( spot_mask , iterations = 1 ) #an additional round of dilation to spot_mask.
+	
+					frame_measurements = np.zeros( patch_label.shape[ 0 ] )
+	
+					for frame in range( patch_label.shape[ 0 ] ) :
+						
+						spot_pixels_in_frame = image[ frame , : , : ][ spot_mask[ frame , : , : ] == 1 ]
+						#spot_pixels_in_frame = image[ frame , : , : ][ patch_label[ frame , : , : ] == i + 1 ]
+	
+						if len( spot_pixels_in_frame ) :
+	
+							frame_measurements[ frame ] = np.sum( spot_pixels_in_frame )
+	
+						else :
+	
+							frame_measurements[ frame ] = 0
+	
+					
+					# Measure the average intensity of the patch in the brightest of its frames. 
+					measurements = np.append( measurements , frame_measurements.max() )
+
+					patch_mask[ patch_label == i + 1 ] = 0	
+					patch_mask[ frame_measurements.argmax() , : , : ][ spot_mask[ frame_measurements.argmax() , : , : ] == 1 ] = 1 #store the region that has been used to quantify the patch intensity (which is dilated in respect to the original patch_mask; a modification of patch_mask at this point has no efect on the loop as patch_mask is used only at the beginning of the measure_spot_intensities function
+				
+				elif not measure_max_intensity_frame :
+
+					measurements = np.append( measurements , np.sum( image[ spot_mask == 1 ] ) )
+					
+					patch_mask[ spot_mask == 1 ] = 1
+		
+				else :
+
+					print( 'measure_max_intensity_frame must be either True or False' )
+
 			else : 
 
 				patch_mask[ patch_label == i + 1 ] = 0	
@@ -98,7 +123,7 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 #	Analyse the images
 #--------------------------------------------------
 
-def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True ):
+def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = True , measure_max_intensity_frame = True ):
 
 	header()
 
@@ -138,12 +163,12 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 
 	return output_measurements
 
-def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , file_pattern = '.tif' ):
+def experiment( path , target_name , reference_name = 'Nuf2' , target_median_radius = 6 , reference_median_radius = 17 , file_pattern = '.tif' , save_masks = True , measure_max_intensity_frame = True ):
 	
-	reference = spotquant( path + '/' + reference_name + '/' , radius = reference_median_radius , file_pattern = file_pattern )
+	reference = spotquant( path + '/' + reference_name + '/' , radius = reference_median_radius , file_pattern = file_pattern , save_masks = save_masks , measure_max_intensity_frame = measure_max_intensity_frame )
 	np.savetxt(path+'/'+reference_name+'_intensities.txt',reference)
 	
-	target = spotquant( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern )
+	target = spotquant( path + '/' + target_name + '/' , radius = target_median_radius , file_pattern = file_pattern , save_masks = save_masks , measure_max_intensity_frame = measure_max_intensity_frame )
 	np.savetxt(path + '/' + target_name + '_intensities.txt',target)
 	
 	return( target , reference)
