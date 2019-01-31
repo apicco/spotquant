@@ -6,7 +6,7 @@ from os import mkdir
 from skimage.measure import label
 import skimage.external.tifffile as tiff
 
-def header( version = 1.00 , year = 2019 , printit = True ) :
+def header( version = 1.02 , year = 2019 , printit = True ) :
 
 	if printit :
 
@@ -74,8 +74,15 @@ def measure_spot_intensities( image , patch_mask , cell_mask ):
 
 			if is_the_patch_isolated :
 
-				# Measure the average intensity of the patch. 
-				measurements = np.append( measurements , np.sum( image[ patch_label == i + 1 ] ) )
+				frame_measurements = np.zeros( patch_label.shape[ 0 ] )
+
+				for frame in range( patch_label.shape[ 0 ] ) :
+
+					frame_measurements[ frame ] = np.mean( image[ frame , : , : ][ patch_label[ frame , : , : ] == i + 1 ] )
+				
+				# Measure the average intensity of the patch in the brightest of its frames. 
+				measurements = np.append( measurements , frame_measurements.max() )
+				#measurements = np.append( measurements , np.sum( image[ patch_label == i + 1 ] ) )
 			
 			else : 
 
