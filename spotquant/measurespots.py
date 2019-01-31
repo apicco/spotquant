@@ -6,12 +6,12 @@ from os import mkdir
 from skimage.measure import label
 import skimage.external.tifffile as tiff
 
-def header( version = 1.02 , year = 2019 , printit = True ) :
+def header( version = 1.03 , year = 2019 , printit = True ) :
 
 	if printit :
 
 		print('|-----------------------------------------------------|')
-		print('| SpotQuant version ' + str( version ) + '\t\t\t\t      |')
+		print('| SpotQuant version ' + str( version ) + '\t\t\t      |')
 		print('| Repository url: https://github.com/apicco/spotquant |')
 		print('| Copyright: ' + str( year ) + ' Andrea Picco. \t\t      |')
 		print('|-----------------------------------------------------|\n')
