@@ -28,7 +28,7 @@ def header( version = 1.03 , year = 2019 , printit = True ) :
 #	Track the patches through the stack
 #--------------------------------------------------
 
-def measure_spot_intensities( image , patch_mask , cell_mask , measure_max_intensity_frame = True ):
+def measure_spot_intensities( image , patch_mask , measure_max_intensity_frame = True ):
 
 	#label the spot masks of the image
 	patch_label = label( patch_mask , connectivity=2 )
@@ -142,12 +142,10 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 		GFP_im , GFP_median = load_image( path_in + GFP_images[i] , radius )
 		print( "Image: " + GFP_images[i] )
 	
-		# Compute a mask of the patches and of the cell.. 
+		# Compute a mask of the patches 
 		patch_mask = mask( GFP_im )
 
-		cell_mask =  mask( GFP_median , algorithm = 'otsu' )
-
-		measurement , patch_mask , ctrl_mask = measure_spot_intensities(GFP_im , patch_mask , cell_mask )
+		measurement , patch_mask , ctrl_mask = measure_spot_intensities(GFP_im , patch_mask )
 		output_measurements=np.concatenate((
 			output_measurements, measurement
 			))
