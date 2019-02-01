@@ -5,6 +5,7 @@ from os import path
 from os import mkdir
 from skimage.measure import label
 import skimage.external.tifffile as tiff
+from matplotlib import pyplot as plt
 
 def header( version = 1.03 , year = 2019 , printit = True ) :
 
@@ -171,4 +172,57 @@ def experiment( path , target_name , reference_name = 'Nuf2' , target_median_rad
 	
 	return( target , reference)
 	
+
+#--------------------------------------------------
+#	Analyse the data
+#--------------------------------------------------
+
+def MAD( x , axis = None , k = 1.4826):
+
+	MAD = np.median( np.absolute( x - np.median( x , axis ) ) , axis )
+	return( k * MAD )
+
+def quantify( x , r , r_number ) :
+
+	x_m = np.median( x )
+	r_m = np.median( r )
+
+	x_e_log = MAD( np.log( x ) ) / np.sqrt( len( x ) )
+	x_e = np.exp( x_e_log ) * x_e_log 
+	r_e_log = MAD( np.log( r ) ) / np.sqrt( len( r ) )
+	r_e = np.exp( r_e_log ) * r_e_log 
+
+
+	f , ( trg , rfr ) = plt.subplots( 1 , 2 , gridspec_kw = { 'height_ratios' : [ 1 , 1 ] } , figsize = ( 11 , 8 ) )
+	
+	trg.hist( np.log( x ) / np.log( 2 ) )
+	rfr.hist( np.log( r ) / np.log( 2 ) )
+
+	plt.subplot( trg )
+	plt.xlabel( "$log_2($ target fluor. int. $)$" )
+	plt.ylabel( "Frequency" )
+	
+	plt.subplot( rfr )
+	plt.xlabel( "$log_2($ reference fluor. int. $)$" )
+	plt.ylabel( "Frequency" )
+	
+	f.savefig( 'hist.pdf' )
+
+
+	return( 
+			r_number[ 0 ] * x_m / r_m ,
+			np.sqrt( ( r_number[ 1 ] * x_m / r_m ) ** 2 + ( r_number[ 0 ] * x_m * x_e / r_m ) ** 2 + ( r_number[ 0 ] * r_e * x_m / ( r_m ) ** 2 ) ** 2 )
+			)
+
+def load_quantification( path ) :
+
+	output = [ ]
+
+	with open( path , 'r' ) as file :
+
+		for line in file :
+
+			output.append( float( line ) )
+
+	return output
 
