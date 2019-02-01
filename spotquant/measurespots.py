@@ -102,6 +102,8 @@ def measure_spot_intensities( image , patch_mask , measure_max_intensity_frame =
 				
 				elif not measure_max_intensity_frame :
 
+					print( 'FALSE' )
+
 					measurements = np.append( measurements , np.sum( image[ spot_mask == 1 ] ) )
 					
 					patch_mask[ spot_mask == 1 ] = 1
@@ -146,7 +148,8 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 		# Compute a mask of the patches 
 		patch_mask = mask( GFP_im )
 
-		measurement , patch_mask , ctrl_mask = measure_spot_intensities(GFP_im , patch_mask )
+		measurement , patch_mask , ctrl_mask = measure_spot_intensities( GFP_im , patch_mask , measure_max_intensity_frame = measure_max_intensity_frame )
+
 		output_measurements=np.concatenate((
 			output_measurements, measurement
 			))
