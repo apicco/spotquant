@@ -56,9 +56,9 @@ Refer to `example.py`, which analyses the images in the `example` folder, for a 
 The fluorescence intensity values are computed as median (distributions are skewed). Their error is estimated with the MAD corrected for asymptotically normal consistency on the log transform of the raw fluorescence intensity values (used to aproximately conform to normality). 
 The error associated with each fluorescence intensity value will thus be:
 
-![error_MAD](https://latex.codecogs.com/gif.latex?%5C%5C%20l%20%3D%20%5Clog%28%20x%20%29%2C%5Cquad%5C%7Bx_1%2C%5Cdots%2Cx_n%5C%7D%5C%5C%20%5Csigma_%7BMAD%7D%20%3D%20MAD%28%20l%20%29%20/%20%5Csqrt%7Bn%7D%20%5C%5C%20%5Csigma%20%3D%20%5Cexp%28%20l%20%29%5Csigma_%7BMAD%7D)
+![error_MAD](https://latex.codecogs.com/gif.latex?%5Cbegin%7Balign*%7D%20l%20%26%3D%5Clog%28%20x%20%29%5Cquad%20x%3D%5Cleft%5C%7Bx_1%2C%5Cdots%2Cx_n%5Cright%5C%7D%5C%5C%20%5Chat%7Bl%7D%20%26%3D%5Ctext%7Bmedian%7D%28l%29%5C%5C%20%5Csigma_%7Bl%7D%26%3D%5Ctext%7BMAD%7D%28l%29/%5Csqrt%7Bn%7D%5C%5C%20%5Chat%7Bx%7D%20%26%3D%5Cexp%28%5Chat%7Bl%7D%29%3D%20%5Ctext%7Bmedian%7D%28%20x%20%29%5C%5C%20%5Csigma_%7B%5Chat%7Bx%7D%7D%20%26%3D%20%5Cexp%7B%28%5Chat%7Bl%7D%29%7D%5Csigma_%7Bl%7D%20%5Cend%7Balign*%7D)
 
-where `x` are the measured fluorescence intensity values in each spot.
+where ![xx](https://latex.codecogs.com/gif.latex?x%3D%5Cleft%5C%7Bx_1%2C%5Cdots%2Cx_n%5Cright%5C%7D%5C%5C) are the measured fluorescence intensity values in each spot.
 
 The error on the estimate of the number of molecules will be:
 

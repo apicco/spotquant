@@ -186,18 +186,26 @@ def MAD( x , axis = None , k = 1.4826):
 
 def quantify( x , r , r_number ) :
 
-	x_m = np.median( x )
-	r_m = np.median( r )
+	x = np.log( x )
+	r = np.log( r )
 
-	x_e_log = MAD( np.log( x ) ) / np.sqrt( len( x ) )
-	x_e = x_m * x_e_log  #exp( median( log( x ) ) == median( x )
-	r_e_log = MAD( np.log( r ) ) / np.sqrt( len( r ) )
-	r_e = r_m * r_e_log  #exp( median( log( r ) ) == median( r )
+	mx = ( np.median( x ) , MAD( x ) / np.sqrt( len( x ) ) )
+	mr = ( np.median( r ) , MAD( r ) / np.sqrt( len( r ) ) )
+
+	target = ( np.exp( mx[ 0 ] ) , np.exp( mx[ 0 ] ) * mx[ 1 ] )
+	reference = ( np.exp( -mr[ 0 ] ) , np.exp( -mr[ 0 ] ) * mr[ 1 ] )
+
+	nr = ( r_number[ 0 ] * target[ 0 ] * reference[ 0 ] , 
+			np.sqrt(
+				( r_number[ 1 ] * target[ 0 ] * reference[ 0 ] ) ** 2 + 
+				( r_number[ 0 ] * target[ 1 ] * reference[ 0 ] ) ** 2 + 
+				( r_number[ 0 ] * target[ 0 ] * reference[ 1 ] ) ** 2 )
+			)
 
 	f , ( trg , rfr ) = plt.subplots( 1 , 2 , gridspec_kw = { 'height_ratios' : [ 1 , 1 ] } , figsize = ( 11 , 8 ) )
 	
-	trg.hist( np.log( x ) / np.log( 2 ) )
-	rfr.hist( np.log( r ) / np.log( 2 ) )
+	trg.hist( x / np.log( 2 ) )
+	rfr.hist( r / np.log( 2 ) )
 
 	plt.subplot( trg )
 	plt.xlabel( "$log_2($ target fluor. int. $)$" )
@@ -209,11 +217,7 @@ def quantify( x , r , r_number ) :
 	
 	f.savefig( 'hist.pdf' )
 
-
-	return( 
-			r_number[ 0 ] * x_m / r_m ,
-			np.sqrt( ( r_number[ 1 ] * x_m / r_m ) ** 2 + ( r_number[ 0 ] * x_m * x_e / r_m ) ** 2 + ( r_number[ 0 ] * r_e * x_m / ( r_m ) ** 2 ) ** 2 )
-			)
+	return( nr )
 
 def load_quantification( path ) :
 
