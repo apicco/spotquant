@@ -102,8 +102,6 @@ def measure_spot_intensities( image , patch_mask , measure_max_intensity_frame =
 				
 				elif not measure_max_intensity_frame :
 
-					print( 'FALSE' )
-
 					measurements = np.append( measurements , np.sum( image[ spot_mask == 1 ] ) )
 					
 					patch_mask[ spot_mask == 1 ] = 1
