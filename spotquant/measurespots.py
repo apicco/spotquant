@@ -146,20 +146,21 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 		# Compute a mask of the patches 
 		patch_mask = mask( GFP_im )
 
-		measurement , patch_mask , ctrl_mask = measure_spot_intensities( GFP_im , patch_mask , save_masks = save_masks , measure_max_intensity_frame = measure_max_intensity_frame )
+		measurement , patch_mask , ctrl_mask = measure_spot_intensities( GFP_im , patch_mask , measure_max_intensity_frame = measure_max_intensity_frame )
 
 		output_measurements=np.concatenate((
 			output_measurements, measurement
 			))
-	
-		#save the ctrl mask	
-		if not path.exists( path_in + 'masks/' ) :
-			mkdir( path_in + 'masks/' )
 
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_Median.tif' ) , GFP_median )
-		tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_BkgCorrected.tif' ) , GFP_im )
+		if save_masks : #save the ctrl mask
+
+			if not path.exists( path_in + 'masks/' ) :
+				mkdir( path_in + 'masks/' )
+	
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_CtrlMask.tif' ) , ctrl_mask )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_PatchMask.tif' ) , patch_mask )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_Median.tif' ) , GFP_median )
+			tiff.imsave( path_in + 'masks/' + GFP_images[i].replace( file_pattern , '_BkgCorrected.tif' ) , GFP_im )
 
 	return output_measurements
 
