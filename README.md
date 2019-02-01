@@ -28,3 +28,29 @@ These `masks` folders contain all the masks used to identify and select the spot
 
 `measure_max_intensity_frame` defines how the fluorescence intensity of a spot is measured. If `True`, the fluorescence intensity is measured from the brightest frame in which each spot is imaged. That is the algorithm used in _Joglekar et al., 2006_ and _Picco et al., 2015_ and it is useful when the structures imaged are susceptible to move along the z-axis during the z-stack acquisition. With this option set as `True`, not all the photons captured by the objective are taken into account. When it is set to `False`, the fluorescence intensity is measured as the integral of the pixel values of each spot imaged in the different planes of the Z-stack.
 
+# Analysis
+
+`spotquant` has a basic function to estimate the number of molecules of the target protein spots, knowing how many molecules are present in the reference protein spots. 
+Load the fluorescence intensities measured in the patches, which are saved as a .txt file, with
+
+	import spotquant.measurespots as sq 
+	foo_intensities = sp.load_quantification( "the_path_to_your_quantification/foo_intensities.txt" ) 
+	foo_reference_intensities = sp.load_quantification( "the_path_to_your_quantification/foo_reference_intensities.txt" ) 
+
+or use directly the outputs of `experiment`, which outputs both the reference and target protein intensities (the same that are saved into the .txt file).
+
+The number of proteins can be estimated as
+
+	foo_number_of_proteins = sp.quantify( foo_intensities , foo_reference_intensities , r_number ) 
+
+where `r_number` is a tuple with two entries: the known number of proteins present in the reference patches, and its standard error. 
+
+Refer to `example.py`, which analyses the images in the `example` folder, for a test using both `measure_max_intensity_frame = True` (default) and `measure_max_intensity_frame = False`. The number of target proteins will be (257.65, 3.60) and (277.86, 5.56).
+
+# The function quantify
+
+The fluorescence intensity values are computed as median (distributions are skewed). Their error is estimated with the MAD corrected for asymptotically normal consistency on the log transform of the raw fluorescence intensity values (used to aproximately conform to normality). 
+The error associated with each fluorescence intensity value will thus be:
+$$
+\sigma = \exp( l ) \sigma_{MAD}
+$$
