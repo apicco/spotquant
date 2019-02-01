@@ -190,10 +190,9 @@ def quantify( x , r , r_number ) :
 	r_m = np.median( r )
 
 	x_e_log = MAD( np.log( x ) ) / np.sqrt( len( x ) )
-	x_e = np.exp( x_e_log ) * x_e_log 
+	x_e = x_m * x_e_log  #exp( median( log( x ) ) == median( x )
 	r_e_log = MAD( np.log( r ) ) / np.sqrt( len( r ) )
-	r_e = np.exp( r_e_log ) * r_e_log 
-
+	r_e = r_m * r_e_log  #exp( median( log( r ) ) == median( r )
 
 	f , ( trg , rfr ) = plt.subplots( 1 , 2 , gridspec_kw = { 'height_ratios' : [ 1 , 1 ] } , figsize = ( 11 , 8 ) )
 	
