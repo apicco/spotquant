@@ -51,7 +51,7 @@ where `r_number` is a tuple with two entries: the known number of proteins prese
 
 Refer to `example.py`, which analyses the images in the `example` folder, for a test using both `measure_max_intensity_frame = True` (default) and `measure_max_intensity_frame = False`. The number of target proteins will be (257.65, 7.21) and (277.86, 10.04).
 
-# The function quantify
+# The function `quantify`
 
 The fluorescence intensity values are computed as median (distributions are skewed). Their error is estimated with the MAD corrected for asymptotically normal consistency on the log transform of the raw fluorescence intensity values (used to aproximately conform to normality). 
 The error associated with each fluorescence intensity value will thus be:
