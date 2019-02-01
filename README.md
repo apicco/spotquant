@@ -24,7 +24,7 @@ It is important that the folders are named with the `target_name` and `reference
 The script will output the fluorescence intensities as _.txt_ files in the folder identified by `path`. The script creates a `masks` folder in each of the two subfolders that contain the raw images. 
 These `masks` folders contain all the masks used to identify and select the spots (\*\_PatchMask.tif and \*\_CtrlMask.tif), the images of the cells corrected for local background subtraction (\*\_BkgCorrected.tif); see Picco and Kaksonen, 2017 for details about the image background subtraction) as well as the median filtered image used to compute the background subtraction (\*\_Median.tif). These images are essential to asses the goodness of the parameters `target_median_radius` and `reference_median_radius`. A smaller median radius will leave the spots still visible on the \*\_Median.tif image. If that is the case, the radius must increase. Using the ImageJ preview, in `Process > Filters > Median...` is useful to find the ideal radius. A composite image of \*\_PatchMask.tif and its corresponding \*\_BkgCorrected.tif (in ImageJ: Color > Make Composite) will allow to identify the patches that have been selected:
 
-![color_combine_example](https://github.com/apicco/spotquant/blob/master/example/example_of_patch_selection.tif)
+![color_combine_example](https://github.com/apicco/spotquant/blob/master/example/example_of_patch_selection.png?raw=true)
 
 `save_masks` is an option to chose whether to save or not all the mask used to identify and measure spot intensities. It is set to `True` as default and creates a `masks` folder in the analised folder, which contains the images used for the analysis.
 
