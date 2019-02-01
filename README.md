@@ -52,5 +52,13 @@ Refer to `example.py`, which analyses the images in the `example` folder, for a 
 The fluorescence intensity values are computed as median (distributions are skewed). Their error is estimated with the MAD corrected for asymptotically normal consistency on the log transform of the raw fluorescence intensity values (used to aproximately conform to normality). 
 The error associated with each fluorescence intensity value will thus be:
 
-![error](https://latex.codecogs.com/gif.latex?%5C%5C%20l%20%3D%20%5Clog%28%20x%20%29%2C%5Cquad%5C%7Bx_1%2C%5Cdots%2Cx_n%5C%7D%5C%5C%20%5Csigma_%7BMAD%7D%20%3D%20MAD%28%20l%20%29%20/%20%5Csqrt%7Bn%7D%20%5C%5C%20%5Csigma%20%3D%20%5Cexp%28%20l%20%29%5Csigma_%7BMAD%7D)
+![error_MAD](https://latex.codecogs.com/gif.latex?%5C%5C%20l%20%3D%20%5Clog%28%20x%20%29%2C%5Cquad%5C%7Bx_1%2C%5Cdots%2Cx_n%5C%7D%5C%5C%20%5Csigma_%7BMAD%7D%20%3D%20MAD%28%20l%20%29%20/%20%5Csqrt%7Bn%7D%20%5C%5C%20%5Csigma%20%3D%20%5Cexp%28%20l%20%29%5Csigma_%7BMAD%7D)
+
+where `x` are the measured fluorescence intensity values in each spot.
+
+The error on the estimate of the number of molecules will be:
+
+![error_molecules](https://latex.codecogs.com/gif.latex?%5C%5C%20estimate%20%3D%20n%5Cfrac%7Bm_t%7D%7Bm_r%7D%5C%5C%20%5Csigma_%7Bestimate%7D%20%3D%20%5Csqrt%7B%5Cleft%28%5Cfrac%7Bm_t%7D%7Bm_r%7D%5Csigma_n%5Cright%29%5E2%20&plus;%20%5Cleft%28%20n%20%5Cfrac%7Bm_t%7D%7Bm_r%7D%20%5Csigma_t%5Cright%29%5E2%20&plus;%20%5Cleft%28n%5Cfrac%7Bm_t%7D%7Bm_r%5E2%7D%5Csigma_r%20%5Cright%20%29%5E2%7D) 
+
+where ![n](https://latex.codecogs.com/gif.latex?%5C%5C%20n) is the known number of molecules in the refrence spots, ![mr](https://latex.codecogs.com/gif.latex?%5C%5C%20m_r) and ![mt](https://latex.codecogs.com/gif.latex?%5C%5C%20m_t), are the median fluorescence intensity values measured for the reference and target protein respectively. ![sn](https://latex.codecogs.com/gif.latex?%5C%5C%20%5Csigma_n)	, ![sr](https://latex.codecogs.com/gif.latex?%5C%5C%20%5Csigma_r), and ![st](https://latex.codecogs.com/gif.latex?%5C%5C%20%5Csigma_t) are their respective error estimates.
 
