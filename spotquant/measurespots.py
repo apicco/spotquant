@@ -146,7 +146,7 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 		# Compute a mask of the patches 
 		patch_mask = mask( GFP_im )
 
-		measurement , patch_mask , ctrl_mask = measure_spot_intensities( GFP_im , patch_mask , measure_max_intensity_frame = measure_max_intensity_frame )
+		measurement , patch_mask , ctrl_mask = measure_spot_intensities( GFP_im , patch_mask , save_masks = save_masks , measure_max_intensity_frame = measure_max_intensity_frame )
 
 		output_measurements=np.concatenate((
 			output_measurements, measurement
