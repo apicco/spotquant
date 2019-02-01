@@ -26,6 +26,8 @@ These `masks` folders contain all the masks used to identify and select the spot
 
 ![color_combine_example](https://github.com/apicco/spotquant/blob/master/example/example_of_patch_selection.png?raw=true)
 
+(in red is the \*\_PatchMask.tif mask for that selected frame).
+
 `save_masks` is an option to chose whether to save or not all the mask used to identify and measure spot intensities. It is set to `True` as default and creates a `masks` folder in the analised folder, which contains the images used for the analysis.
 
 `measure_max_intensity_frame` defines how the fluorescence intensity of a spot is measured. If `True`, the fluorescence intensity is measured from the brightest frame in which each spot is imaged. That is the algorithm used in _Joglekar et al., 2006_ and _Picco et al., 2015_ and it is useful when the structures imaged are susceptible to move along the z-axis during the z-stack acquisition. With this option set as `True`, not all the photons captured by the objective are taken into account. When it is set to `False`, the fluorescence intensity is measured as the integral of the pixel values of each spot imaged in the different planes of the Z-stack.
