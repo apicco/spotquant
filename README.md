@@ -49,7 +49,7 @@ The number of proteins can be estimated as
 
 where `r_number` is a tuple with two entries: the known number of proteins present in the reference patches, and its standard error. 
 
-Refer to `example.py`, which analyses the images in the `example` folder, for a test using both `measure_max_intensity_frame = True` (default) and `measure_max_intensity_frame = False`. The number of target proteins will be (257.65, 3.60) and (277.86, 5.56).
+Refer to `example.py`, which analyses the images in the `example` folder, for a test using both `measure_max_intensity_frame = True` (default) and `measure_max_intensity_frame = False`. The number of target proteins will be (257.65, 7.21) and (277.86, 10.04).
 
 # The function quantify
 
