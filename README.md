@@ -51,6 +51,6 @@ Refer to `example.py`, which analyses the images in the `example` folder, for a 
 
 The fluorescence intensity values are computed as median (distributions are skewed). Their error is estimated with the MAD corrected for asymptotically normal consistency on the log transform of the raw fluorescence intensity values (used to aproximately conform to normality). 
 The error associated with each fluorescence intensity value will thus be:
-$$
-\sigma = \exp( l ) \sigma_{MAD}
-$$
+
+![error](https://latex.codecogs.com/gif.latex?%5C%5C%20l%20%3D%20%5Clog%28%20x%20%29%2C%5Cquad%5C%7Bx_1%2C%5Cdots%2Cx_n%5C%7D%5C%5C%20%5Csigma_%7BMAD%7D%20%3D%20MAD%28%20l%20%29%20/%20%5Csqrt%7Bn%7D%20%5C%5C%20%5Csigma%20%3D%20%5Cexp%28%20l%20%29%5Csigma_%7BMAD%7D)
+
