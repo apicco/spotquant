@@ -202,7 +202,7 @@ def quantify( x , r , r_number ) :
 				( r_number[ 0 ] * target[ 0 ] * reference[ 1 ] ) ** 2 )
 			)
 
-	f , ( trg , rfr ) = plt.subplots( 1 , 2 , gridspec_kw = { 'height_ratios' : [ 1 , 1 ] } , figsize = ( 11 , 8 ) )
+	f , ( trg , rfr ) = plt.subplots( 1 , 2 , gridspec_kw = { 'height_ratios' : [ 1 ] , 'width_ratios' : [ 1 , 1 ] } , figsize = ( 11 , 8 ) )
 	
 	trg.hist( x / np.log( 2 ) )
 	rfr.hist( r / np.log( 2 ) )
