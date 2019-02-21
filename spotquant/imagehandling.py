@@ -49,12 +49,12 @@ def mask(image , threshold_value = None , algorithm = 'yen' ):
 	
 	if ( threshold_value == None ) & ( algorithm == 'yen' ) :
 
-		threshold_value = filters.threshold_yen( image )
+		threshold_value = filters.threshold_yen( np.max( image , axis = 0 ) )
 		print( '	Yen threshold: ' + str( threshold_value ) )
 
 	elif ( threshold_value == None ) & ( algorithm == 'otsu' ) :
 		
-		threshold_value = filters.threshold_otsu( image )
+		threshold_value = filters.threshold_otsu( np.max( image , axis = 0 ) )
 		print( '	Otsu threshold: ' + str( threshold_value ) )
 	
 	image_threshold = np.zeros( shape = image.shape , dtype = image.dtype )
