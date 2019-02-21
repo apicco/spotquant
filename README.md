@@ -2,6 +2,9 @@
 
 Quantification of the fluorescence intensity in diffraction limited spots, imaged by fluorescence microscopy.
 
+# Versions
+1.04 - The threshold value used to compute the mask with the Yen algorithm is now computed on the image z max projection. That way the threshold values are smaller and the spot selection less stringent. Otherwise, dim spots were often discarded. 
+
 # Installation
 
 You need Python 3.X. To install the `spotquant` package it is sufficient to download it [here](https://github.com/apicco/spotquant/archive/master.zip).
