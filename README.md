@@ -41,8 +41,8 @@ These `masks` folders contain all the masks used to identify and select the spot
 Load the fluorescence intensities measured in the patches, which are saved as a .txt file, with
 
 	import spotquant.measurespots as sq 
-	foo_intensities = sp.load_quantification( "the_path_to_your_quantification/foo_intensities.txt" ) 
-	foo_reference_intensities = sp.load_quantification( "the_path_to_your_quantification/foo_reference_intensities.txt" ) 
+	foo_intensities = sq.load_quantification( "the_path_to_your_quantification/foo_intensities.txt" ) 
+	foo_reference_intensities = sq.load_quantification( "the_path_to_your_quantification/foo_reference_intensities.txt" ) 
 
 or use directly the outputs of `experiment`, which outputs both the reference and target protein intensities (the same that are saved into the .txt file).
 
