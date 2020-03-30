@@ -67,7 +67,7 @@ The error on the estimate of the number of molecules will be:
 
 ![average_molecules](https://latex.codecogs.com/gif.latex?e=n\frac{\hat{x}}{\hat{y}})
 
-![error_molecules](https://latex.codecogs.com/gif.latex?\sigma_e=\sqrt{\left(\frac{\hat{x}}{\hat{y}}\sigma_n\right)^2&plus;\left(n\frac{\hat{x}}{\hat{y}}\sigma_{\hat{x}}\right)^2&plus;\left(n\frac{\hat{x}}{\hat{y}^2}\sigma_{\hat{y}}\right)^2})
+![error_molecules](https://latex.codecogs.com/gif.latex?\sigma_e=\sqrt{\left(\frac{\hat{x}}{\hat{y}}\sigma_n\right)^2+\left(n\frac{\hat{x}}{\hat{y}}\sigma_{\hat{x}}\right)^2&plus;\left(n\frac{\hat{x}}{\hat{y}^2}\sigma_{\hat{y}}\right)^2})
 
 where ![n](https://latex.codecogs.com/gif.latex?n) is the known number of molecules in the refrence spots, ![xx](https://latex.codecogs.com/gif.latex?\hat{x}) and ![yy](https://latex.codecogs.com/gif.latex?\hat{y}), are the median fluorescence intensity values measured for the reference and target protein respectively, and ![sn](https://latex.codecogs.com/gif.latex?\sigma_{\hat{x}})	, ![sr](https://latex.codecogs.com/gif.latex?\sigma_{\hat{y}}) are their respective error estimates derived from the log transformation described above. ![sr](https://latex.codecogs.com/gif.latex?\sigma_{n}) is the error estimate on the known number of molecules in the reference spot.
 
