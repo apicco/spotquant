@@ -3,7 +3,7 @@ import warnings as wr
 from skimage import filters #import filters
 from skimage import morphology
 from skimage import img_as_float, img_as_uint
-import skimage.external.tifffile as tiff
+import tifffile as tiff
 
 def img_corr( img , radius ):
 
