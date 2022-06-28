@@ -147,6 +147,11 @@ def spotquant(path_in , radius = 17 , file_pattern = 'GFP-FW' , save_masks = Tru
 		patch_mask = mask( GFP_im )
 
 		measurement , patch_mask , ctrl_mask = measure_spot_intensities( GFP_im , patch_mask , measure_max_intensity_frame = measure_max_intensity_frame )
+        # TO DO
+        # - output also the label of the patch measurement, as well as the ctrl_label mask from measure_spot_intensities
+        # - duplicate measure_spot_intenstities for the RFP as well (if file_patten_RFP != None : then the second measure_spot_intensities)
+        # - for each measurement in the GFP, use it label to retrieve the mask and check that the mask matches a RFP spot. Use its RFP label to retrieve and 
+        #   match the RFP measurement
 
 		output_measurements=np.concatenate((
 			output_measurements, measurement
