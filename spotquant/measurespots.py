@@ -12,10 +12,11 @@ def header( version = 2.00 , year = 2022 , printit = True ) :
     if printit :
 
         print('|-----------------------------------------------------|')
-        print('| SpotQuant version ' + str( version ) + '\t\t\t      |')
-        print('| This version is an hack meant to compare +\t        |')
-        print('| intensities of images acquired in two channel' + '\t\t |')
-        print('| Repository url: https://github.com/apicco/spotquant/tree/b10 |')
+        print('| SpotQuant version ' + str( version ) + '\t\t\t\t      |')
+        print('| This version is an hack meant to compare +\t      |')
+        print('| intensities of images acquired in two channels' + '      |')
+        print('| Repository url: \t\t\t\t      |')
+        print('| https://github.com/apicco/spotquant/tree/b9 \t      |')
         print('| Copyright: ' + str( year ) + ' Andrea Picco. \t\t      |')
         print('|-----------------------------------------------------|\n')
     
