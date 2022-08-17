@@ -7,13 +7,15 @@ from skimage.measure import label
 import tifffile as tiff
 from matplotlib import pyplot as plt
 
-def header( version = 1.04 , year = 2019 , printit = True ) :
+def header( version = 2.00 , year = 2022 , printit = True ) :
 
     if printit :
 
         print('|-----------------------------------------------------|')
         print('| SpotQuant version ' + str( version ) + '\t\t\t      |')
-        print('| Repository url: https://github.com/apicco/spotquant |')
+        print('| This version is an hack meant to compare +\t        |')
+        print('| intensities of images acquired in two channel' + '\t\t |')
+        print('| Repository url: https://github.com/apicco/spotquant/tree/b10 |')
         print('| Copyright: ' + str( year ) + ' Andrea Picco. \t\t      |')
         print('|-----------------------------------------------------|\n')
     
