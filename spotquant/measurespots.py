@@ -207,13 +207,11 @@ def quantify( x , r , r_number ) :
 	trg.hist( x / np.log( 2 ) )
 	rfr.hist( r / np.log( 2 ) )
 
-	plt.subplot( trg )
-	plt.xlabel( "$log_2($ target fluor. int. $)$" )
-	plt.ylabel( "Frequency" )
+	trg.set_xlabel( "$log_2($ target fluor. int. $)$" )
+	trg.set_ylabel( "Frequency" )
 	
-	plt.subplot( rfr )
-	plt.xlabel( "$log_2($ reference fluor. int. $)$" )
-	plt.ylabel( "Frequency" )
+	rfr.set_xlabel( "$log_2($ reference fluor. int. $)$" )
+	rfr.set_ylabel( "Frequency" )
 	
 	f.savefig( 'hist.pdf' )
 
